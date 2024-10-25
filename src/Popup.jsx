@@ -211,134 +211,164 @@ export default function Popup({ setMessage, userId }) {
     }
 
     return (
-      <>
-        {currentProduct && <ProductPreview currentProduct={currentProduct} />}
-        <hr className="border-gray-100" />
-
-        {isCreatingWishlist ? (
-          <div className="py-2 flex items-center">
-            <input
-              type="text"
-              value={newWishlistName}
-              onChange={(e) => setNewWishlistName(e.target.value)}
-              placeholder="Enter wishlist name"
-              className="flex-grow text-base py-1 px-3 border rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500"
-            />
-            <button
-              onClick={() => createWishlist(newWishlistName)}
-              className="py-1 px-2 ml-1 bg-indigo-600 text-base text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 focus:outline-none"
-            >
-              Add
-            </button>
-            <button
-              onClick={() => {
-                setIsCreatingWishlist(false);
-                setNewWishlistName("");
-              }}
-              className="py-1 px-2 text-base text-gray-500 hover:text-red-500 transition-colors duration-200 focus:outline-none"
-            >
-              Cancel
-            </button>
+      <div className="h-full flex flex-col">
+        {currentProduct && (
+          <div className="flex-none">
+            <ProductPreview currentProduct={currentProduct} />
+            <hr className="border-gray-100" />
           </div>
-        ) : (
-          <h3
-            className="p-2 text-xl font-medium text-center text-blue-700 cursor-pointer"
-            onClick={() => setIsCreatingWishlist(true)}
-          >
-            <span className="text-2xl mr-2">+</span>
-            New Wishlist
-          </h3>
         )}
 
-        <Wishlist
-          wishlists={wishlists}
-          selectedWishlistId={selectedWishlistId}
-          handleWishlistChange={handleWishlistChange}
-          removeWishlist={removeWishlist}
-          showMoreWishlists={showMoreWishlists}
-          setShowMoreWishlists={setShowMoreWishlists}
-          isNewProduct={Boolean(currentProduct)}
-          fetchWishlists={fetchWishlists}
-          userId={userId}
-        />
-
-        {currentProduct && (
-          <>
-            <hr className="border-gray-100 my-4" />
-            <div className="flex flex-col gap-2 w-full">
-              <label className="text-base mr-4">Notes</label>
-              <textarea
-                value={userNote}
-                onChange={(e) => setUserNote(e.target.value)}
-                placeholder="Here you can add some details about the product"
-                className="flex-grow py-1 px-3 border rounded-md text-base focus:outline-none focus:ring-1 focus:ring-indigo-600 placeholder:text-[#44403C40] resize-none placeholder:text-base"
+        <div className="flex-1">
+          {isCreatingWishlist ? (
+            <div className="py-2 flex items-center">
+              <input
+                type="text"
+                value={newWishlistName}
+                onChange={(e) => setNewWishlistName(e.target.value)}
+                placeholder="Enter wishlist name"
+                className="flex-grow text-base py-1 px-3 border rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500"
               />
-            </div>
-
-            <div className="flex justify-center">
               <button
-                onClick={addProductToWishlist}
-                className="mt-4 bg-indigo-600 text-white px-4 py-2 text-base rounded-lg w-1/2 hover:bg-indigo-700 transition duration-300 drop-shadow-[0px_20px_50px_0px_#4338CA26]"
+                onClick={() => createWishlist(newWishlistName)}
+                className="py-1 px-2 ml-1 bg-indigo-600 text-base text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 focus:outline-none"
               >
-                Done
+                Add
+              </button>
+              <button
+                onClick={() => {
+                  setIsCreatingWishlist(false);
+                  setNewWishlistName("");
+                }}
+                className="py-1 px-2 text-base text-gray-500 hover:text-red-500 transition-colors duration-200 focus:outline-none"
+              >
+                Cancel
               </button>
             </div>
+          ) : (
+            <h3
+              className="p-2 text-xl font-medium text-center text-blue-700 cursor-pointer"
+              onClick={() => setIsCreatingWishlist(true)}
+            >
+              <span className="text-2xl mr-2">+</span>
+              New Wishlist
+            </h3>
+          )}
 
-            <p className="my-4 text-xs text-gray-500 text-center">
-              Having issues? Try saving from the toolbar icon.
-            </p>
-          </>
+          <Wishlist
+            wishlists={wishlists}
+            selectedWishlistId={selectedWishlistId}
+            handleWishlistChange={handleWishlistChange}
+            removeWishlist={removeWishlist}
+            showMoreWishlists={showMoreWishlists}
+            setShowMoreWishlists={setShowMoreWishlists}
+            isNewProduct={Boolean(currentProduct)}
+            fetchWishlists={fetchWishlists}
+            userId={userId}
+          />
+
+          {currentProduct && (
+            <div className="mt-auto">
+              <hr className="border-gray-100 my-4" />
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-base mr-4">Notes</label>
+                <textarea
+                  value={userNote}
+                  onChange={(e) => setUserNote(e.target.value)}
+                  placeholder="Here you can add some details about the product"
+                  className="flex-grow py-1 px-3 border rounded-md text-base focus:outline-none focus:ring-1 focus:ring-indigo-600 placeholder:text-[#44403C40] resize-none placeholder:text-base h-20"
+                />
+              </div>
+
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={addProductToWishlist}
+                  disabled={!selectedWishlistId}
+                  className={`px-4 py-2 text-base rounded-lg w-1/2 transition duration-300 drop-shadow-[0px_20px_50px_0px_#4338CA26] ${
+                    selectedWishlistId
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                      : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  }`}
+                >
+                  Done
+                </button>
+              </div>
+
+              <p className="mt-4 mb-2 text-xs text-gray-500 text-center">
+                Having issues? Try saving from the toolbar icon.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {!currentProduct && selectedWishlistId && (
+          <div className="flex-1">
+            <ProductList
+              wishlistItems={wishlistItems}
+              removeProduct={removeProduct}
+              showMoreItems={showMoreItems}
+              setShowMoreItems={setShowMoreItems}
+            />
+          </div>
         )}
-      </>
+      </div>
     );
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-2 max-w-full sm:max-w-md mx-auto h-full overflow-hidden">
-      {loading && (
-        <div className="text-center py-4">
-          <div className="loader border-t-4 border-green-500 rounded-full w-12 h-12 animate-spin"></div>
-          <p>Loading...</p>
-        </div>
-      )}
+    <div className="flex flex-col h-full bg-white">
+      {/* Fixed Header */}
+      <div className="flex-none bg-white border-b border-gray-100 px-2 pt-2">
+        {currentProduct && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-center gap-2">
+              <ChevronLeftIcon className="h-10 w-10 text-[#4338CA]" />
+              <button
+                className={`font-medium text-base ${
+                  activeTab === "save" ? "text-black" : "text-gray-400"
+                }`}
+                onClick={() => handleTabClick("save")}
+              >
+                Save
+              </button>
+              <hr className="h-4 bg-black w-[2px]" />
+              <button
+                className={`font-medium text-base ${
+                  activeTab === "more" ? "text-black" : "text-gray-400"
+                }`}
+                onClick={() => handleTabClick("more")}
+              >
+                More
+              </button>
+            </div>
+          </div>
+        )}
 
-      {currentProduct && (
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center justify-center gap-2">
-            <ChevronLeftIcon className="h-10 w-10 text-[#4338CA]" />
+        {!loading && !currentProduct && (
+          <div className="text-center py-2">
             <button
-              className={`font-medium text-base ${
-                activeTab === "save" ? "text-black" : "text-gray-400"
-              }`}
-              onClick={() => handleTabClick("save")}
+              onClick={handleRefresh}
+              className="bg-green-500 text-white px-4 py-1 text-base rounded hover:bg-green-600 transition duration-300"
             >
-              Save
-            </button>
-            <hr className="h-4 bg-black w-[2px]" />
-            <button
-              className={`font-medium text-base ${
-                activeTab === "more" ? "text-black" : "text-gray-400"
-              }`}
-              onClick={() => handleTabClick("more")}
-            >
-              More
+              Refresh Product Info
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {!loading && !currentProduct && (
-        <div className="text-center">
-          <button
-            onClick={handleRefresh}
-            className="bg-green-500 text-white px-4 py-1 text-base rounded hover:bg-green-600 transition duration-300"
-          >
-            Refresh Product Info
-          </button>
-        </div>
-      )}
-
-      {!loading && renderContent()}
+      {/* Main Content */}
+      <div className="flex-1 px-2 py-1">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="loader border-t-4 border-green-500 rounded-full w-12 h-12 animate-spin"></div>
+              <p>Loading...</p>
+            </div>
+          </div>
+        ) : (
+          renderContent()
+        )}
+      </div>
 
       {isPopupVisible && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -362,15 +392,6 @@ export default function Popup({ setMessage, userId }) {
             </div>
           </div>
         </div>
-      )}
-
-      {!currentProduct && selectedWishlistId && (
-        <ProductList
-          wishlistItems={wishlistItems}
-          removeProduct={removeProduct}
-          showMoreItems={showMoreItems}
-          setShowMoreItems={setShowMoreItems}
-        />
       )}
     </div>
   );

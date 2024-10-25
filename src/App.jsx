@@ -38,7 +38,6 @@ export default function App() {
     localStorage.setItem("userId", JSON.stringify(user.sub));
     setUser(user);
     setUserId(user.sub);
-    // Show first tip for new user
     setShowTips({ firstTip: true, secondTip: false, completed: false });
     console.log("Login Success");
   };

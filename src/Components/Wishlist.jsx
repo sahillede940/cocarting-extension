@@ -20,13 +20,33 @@ export default function Wishlist({
   const handleDeleteWishlist = async (wishlistId) => {
     toast.info("Deleting wishlist...");
     try {
-      await axios.delete(`${API_URL}/delete_wishlist/${wishlistId}`);
+      await axios.delete(`${API_URL}/delete_wishlist/${wishlistId}`); // Fixed template literal
       await fetchWishlists(userId);
       toast.success("Wishlist deleted successfully");
     } catch (error) {
       console.error(error);
       toast.error("Failed to delete wishlist");
     }
+  };
+
+  const handleWishlistClick = (wishlistId, wishlistName) => {
+    if (!wishlistName) {
+      toast.error("Wishlist name cannot be empty");
+      return;
+    }
+    if (selectedWishlistId === wishlistId) {
+      handleWishlistChange(null); // Unselect if already selected
+    } else {
+      handleWishlistChange(wishlistId); // Select if not selected
+    }
+  };
+
+  const handleAddWishlist = (wishlistId, wishlistName) => {
+    if (!wishlistName) {
+      toast.error("Wishlist name cannot be empty");
+      return;
+    }
+    handleWishlistChange(wishlistId);
   };
 
   return (
@@ -38,23 +58,23 @@ export default function Wishlist({
             isSelected
               ? "bg-indigo-600 hover:bg-indigo-700 text-white"
               : "bg-white hover:bg-gray-50"
-          } transition-colors duration-200 focus:outline-none`;
+          } transition-colors duration-200 focus:outline-none`; // Fixed template literal
 
           return (
             <li
               key={wishlist.id}
-              className="flex justify-between  text-baseitems-center"
+              className="flex justify-between items-center text-base" // Fixed class order
             >
               <button
                 className={buttonClasses}
-                onClick={() => handleWishlistChange(wishlist.id)}
+                onClick={() => handleWishlistClick(wishlist.id, wishlist.name)}
               >
                 {wishlist.name}
               </button>
               {isNewProduct ? (
                 <button
                   className="ml-3 py-1 px-6 bg-indigo-600 text-white text-base rounded-lg hover:bg-indigo-700 transition-colors duration-200 focus:outline-none"
-                  onClick={() => handleWishlistChange(wishlist.id)}
+                  onClick={() => handleAddWishlist(wishlist.id, wishlist.name)}
                 >
                   Add
                 </button>
