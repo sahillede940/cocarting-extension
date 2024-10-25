@@ -34,7 +34,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen p-1 rounded-md bg-white">
+    <div className="p-2 border-none rounded-2xl" style={{ height: "100%", overflow: "hidden" }}>
       <Header setMessage={setMessage} />
 
       {userId ? (

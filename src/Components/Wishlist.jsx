@@ -13,7 +13,9 @@ export default function Wishlist({
   fetchWishlists,
   userId,
 }) {
-  const visibleWishlists = showMoreWishlists ? wishlists : wishlists.slice(0, 3);
+  const visibleWishlists = showMoreWishlists
+    ? wishlists
+    : wishlists.slice(0, 3);
 
   const handleDeleteWishlist = async (wishlistId) => {
     toast.info("Deleting wishlist...");
@@ -33,12 +35,20 @@ export default function Wishlist({
         {visibleWishlists.map((wishlist) => {
           const isSelected = selectedWishlistId === wishlist.id;
           const buttonClasses = `py-1 px-4 rounded-md flex-grow text-left text-base text-gray-700 ${
-            isSelected ? "bg-blue-100 text-blue-700" : "bg-white hover:bg-gray-50"
+            isSelected
+              ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+              : "bg-white hover:bg-gray-50"
           } transition-colors duration-200 focus:outline-none`;
 
           return (
-            <li key={wishlist.id} className="flex justify-between  text-baseitems-center">
-              <button className={buttonClasses} onClick={() => handleWishlistChange(wishlist.id)}>
+            <li
+              key={wishlist.id}
+              className="flex justify-between  text-baseitems-center"
+            >
+              <button
+                className={buttonClasses}
+                onClick={() => handleWishlistChange(wishlist.id)}
+              >
                 {wishlist.name}
               </button>
               {isNewProduct ? (

@@ -74,12 +74,14 @@ button:focus-visible {
 /* Hide scrollbar for all browsers */
 
 body {
-  width: 350px; /* Set the desired width */
-  height: 100px;
+  width: 350px;
+  /* Set the desired width */
+  height: 200px;
   margin: 0;
   padding: 0;
 }
 
 *::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
+  display: none;
+  /* Chrome, Safari, and Opera */
 }
