@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "cocarting",
+  "version": "1.0",
+  "description": "Create and manage multiple wishlists and add Amazon products.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "notifications",
+    "identity"
+  ],
+  "oauth2": {
+    "client_id": "439430481688-ct85ilu3g0c4lgsbu64hv9g4dsmjufcn.apps.googleusercontent.com",
+    "scopes": [
+      "email",
+      "profile",
+      "openid"
+    ]
+  },
+  "host_permissions": [
+    "https://cron-job-9njv.onrender.com/*",
+    "https://www.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.amazon.in/*",
+        "https://www.flipkart.com/*",
+        "https://www.snapdeal.com/*",
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ]
+}
