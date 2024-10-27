@@ -5,14 +5,16 @@ import { jwtDecode } from "jwt-decode";
 import TipPopup from "./TipPopup";
 import ToolbarTipPopup from "./ToolbarTipPopup";
 import ErrorToast from "./Components/ErrorToast";
-
+import { useRef } from "react";
 export default function App() {
   const [message, setMessage] = useState(null);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const popupRef = useRef(null);
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
   const [userId, setUserId] = useState(
-    JSON.parse(localStorage.getItem("userId")) || "234c234c2"
+    JSON.parse(localStorage.getItem("userId")) || "1"
   );
   const [showTips, setShowTips] = useState({
     firstTip: false,
@@ -20,6 +22,14 @@ export default function App() {
     completed: false,
   });
   const [showErrorToast, setShowErrorToast] = useState(true);
+
+  useEffect(() => {
+    chrome.storage?.local.get(["wishlists", "currentProduct"], (result) => {
+      if (result.currentProduct) {
+        setCurrentProduct(result.currentProduct);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     // Check if user has seen tips before
@@ -67,6 +77,21 @@ export default function App() {
     );
   };
 
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (popupRef.current && !popupRef.current.contains(event.target)) {
+  //       chrome.storage?.local.remove("currentProduct", () => {
+  //         setCurrentProduct(null);
+  //       });
+  //     }
+  //   };
+
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
+
   const handleDummyError = () => {
     setShowErrorToast(true);
   };
@@ -77,7 +102,7 @@ export default function App() {
         className="border-none rounded-2xl text-jakarta p-1"
         style={{ height: "100%", overflow: "hidden" }}
       >
-        {showErrorToast ? (
+        {showErrorToast && Boolean(currentProduct) ? (
           <ErrorToast
             message="Product not Saved to WishList!"
             onClose={() => setShowErrorToast(false)}
@@ -100,7 +125,7 @@ export default function App() {
                       <ToolbarTipPopup onComplete={handleSecondTipComplete} />
                     )}
                     {showTips.completed && (
-                      <Popup setMessage={setMessage} userId={userId} />
+                      <Popup setMessage={setMessage} userId={userId} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct}  />
                     )}
                   </div>
                 </div>
@@ -115,6 +140,38 @@ export default function App() {
             )}
           </div>
         )}
+
+        {/* <div
+            className="border-none rounded-2xl text-jakarta p-2"
+            style={{ height: "100%", overflow: "hidden" }}
+          >
+            <Header setMessage={setMessage} />
+
+            {userId ? (
+              <main className="container">
+                <div className="flex justify-center items-center">
+                  <div className="w-full max-w-4xl lg:max-w-6xl rounded-lg">
+                    {showTips.firstTip && (
+                      <TipPopup onComplete={handleFirstTipComplete} />
+                    )}
+                    {showTips.secondTip && (
+                      <ToolbarTipPopup onComplete={handleSecondTipComplete} />
+                    )}
+                    {showTips.completed && (
+                      <Popup setMessage={setMessage} userId={userId} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct}  />
+                    )}
+                  </div>
+                </div>
+              </main>
+            ) : (
+              <button
+                className="bg-blue-500 text-white font-bold py-2 px-4 rounded-md"
+                onClick={handleDummyError}
+              >
+                Login
+              </button>
+            )}
+          </div> */}
       </div>
     </>
   );

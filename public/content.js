@@ -164,7 +164,7 @@ async function scrapeProductData() {
 
 
 
-if (true || window.location.href.match(/^https:\/\/www\.amazon\.in\/.*\/dp\/.*$/) || window.location.href.match(/^https:\/\/www\.flipkart\.com\/.*\/p\/.*$/)) {
+if (true) {
     let addButton = document.createElement('button');
 
     addButton.innerHTML = `
@@ -175,11 +175,15 @@ if (true || window.location.href.match(/^https:\/\/www\.amazon\.in\/.*\/dp\/.*$/
     addButton.style.top = '200px';
     addButton.style.right = '0px';
     addButton.style.zIndex = 9999;
-    addButton.style.background = 'none';
-    addButton.style.border = 'none'; 
-    addButton.style.padding = '0'; 
-    addButton.style.margin = '0';  
-    addButton.style.cursor = 'pointer';  
+    addButton.style.background = 'purple';  
+    addButton.style.borderTop = '1.5px solid blue';  
+    addButton.style.borderLeft = '1.5px solid blue';  
+    addButton.style.borderBottom = '1.5px solid blue';  
+    addButton.style.borderRight = 'none';  
+    addButton.style.padding = '0';
+    addButton.style.margin = '0';
+    addButton.style.cursor = 'pointer';
+    addButton.style.borderRadius = '5px';
 
     addButton.onclick = async () => {
         await scrapeProductData();

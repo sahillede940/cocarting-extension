@@ -1,6 +1,6 @@
 export default function ProductList({
   wishlistItems,
-  deleteProduct,
+  removeProduct,
   showMoreItems,
   setShowMoreItems,
 }) {
@@ -42,11 +42,11 @@ export default function ProductList({
                   </div>
                 )}
                 <p className="mt-5 text-base font-bold text-black">
-                  {currentProduct.currentPrice}
+                  ${currentProduct.currentPrice}
                 </p>
                 {currentProduct.mrpPrice && (
                   <p className="text-sm text-gray-500 line-through">
-                    {currentProduct.mrpPrice}
+                    ${currentProduct.mrpPrice}
                   </p>
                 )}
                 <a
@@ -67,7 +67,7 @@ export default function ProductList({
                 </p>
                 <button
                   className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 mt-3"
-                  onClick={() => deleteProduct(currentProduct.id)}
+                  onClick={() => removeProduct(currentProduct.id)}
                 >
                   Delete
                 </button>

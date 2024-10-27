@@ -7,6 +7,16 @@ import { API_URL } from "./constant";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import DisablePopup from "./DisablePopup";
 
+function convertPriceToNumber(priceStr) {
+  const match = priceStr.replace(",", "").match(/\d+(\.\d+)?/);
+  return match ? parseFloat(match[0]) : null;
+}
+function convertToSlug(url) {
+  const cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/');
+  const slug = cleanUrl.filter(part => part).pop() || '';
+  return slug.slice(0, 200);
+}
+
 export default function Popup({ setMessage, userId }) {
   const [wishlists, setWishlists] = useState([]);
   const [selectedWishlistId, setSelectedWishlistId] = useState(null);
@@ -25,12 +35,14 @@ export default function Popup({ setMessage, userId }) {
   // Fetch wishlists for the user
   const fetchWishlists = async (user_id = userId) => {
     try {
-      const response = await axios.get(`${API_URL}/get_wishlists/${user_id}`);
+      const response = await axios.get(`${API_URL}/wishlists/${user_id}`);
       setWishlists(response.data);
     } catch (error) {
       console.error("Error fetching wishlists:", error);
     }
   };
+
+  
 
   useEffect(() => {
     fetchWishlists(userId);
@@ -47,16 +59,17 @@ export default function Popup({ setMessage, userId }) {
     if (!currentProduct) {
       try {
         const response = await axios.get(
-          `${API_URL}/get_wishlist_products/${wishlistId}`
+          `${API_URL}/wishlists/${wishlistId}/products`
         );
+
+        console.log("response", response.data);
         const formattedItems = response.data.map((item) => ({
-          title: item.title,
-          currentPrice: item.current_price,
-          mrpPrice: item.mrp_price,
-          rating: item.rating,
-          imageUrl: item.image_url,
-          url: item.url,
-          websiteName: item.website_name,
+          title: item.name,
+          currentPrice: item.price,
+          mrpPrice: item.original_price,
+          rating: item.customer_rating,
+          imageUrl: item.images[0].image,
+          url: item.product_tracking_url,
           id: item.id,
           note: item.note,
         }));
@@ -69,7 +82,7 @@ export default function Popup({ setMessage, userId }) {
 
   const createWishlist = async (wishlistName) => {
     try {
-      await axios.post(`${API_URL}/create_wishlist`, {
+      await axios.post(`${API_URL}/wishlists`, {
         name: wishlistName,
         user_id: userId,
       });
@@ -99,7 +112,8 @@ export default function Popup({ setMessage, userId }) {
 
   const removeProduct = async (productId) => {
     try {
-      await axios.delete(`${API_URL}/delete_product?product_id=${productId}`);
+      console.log("Deleting product with id:", productId);
+      await axios.delete(`${API_URL}/products/${productId}`);
       await handleWishlistChange(selectedWishlistId);
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -107,19 +121,32 @@ export default function Popup({ setMessage, userId }) {
   };
 
   const addProductToWishlist = () => {
+
     if (currentProduct) {
+      console.log("Adding product to wishlist...");
+      console.log("currentProduct", {
+        name: currentProduct.title,
+        price: convertPriceToNumber(currentProduct.currentPrice),
+        original_price: convertPriceToNumber(currentProduct.mrpPrice),
+        customer_rating: currentProduct.rating,
+        image: currentProduct.imageUrl,
+        product_tracking_url: currentProduct.url,
+        slug: convertToSlug(currentProduct.url),
+        added_by: Number(userId),
+      });
       axios
-        .post(`${API_URL}/add_to_wishlist`, {
+        .post(`${API_URL}/wishlist-products`, {
           product: {
-            title: currentProduct.title,
-            current_price: currentProduct.currentPrice,
-            mrp_price: currentProduct.mrpPrice,
-            rating: currentProduct.rating,
-            image_url: currentProduct.imageUrl,
-            url: currentProduct.url,
-            website_name: currentProduct.websiteName,
-            note: userNote,
+            name: currentProduct.title,
+            price: convertPriceToNumber(currentProduct.currentPrice),
+            original_price: convertPriceToNumber(currentProduct.mrpPrice),
+            customer_rating: currentProduct.rating,
+            image: currentProduct.imageUrl,
+            product_tracking_url: currentProduct.url,
+            slug: convertToSlug(currentProduct.url),
+            added_by: Number(userId),
           },
+          note: userNote,
           wishlist_id: selectedWishlistId,
         })
         .then(() => {
