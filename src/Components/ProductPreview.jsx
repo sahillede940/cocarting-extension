@@ -1,3 +1,8 @@
+function convertPriceToNumber(priceStr) {
+  const match = priceStr.replace(",", "").match(/\d+(\.\d+)?/);
+  return match ? parseFloat(match[0]) : null;
+}
+
 export default function ProductPreview({ currentProduct }) {
   const { title, currentPrice, imageUrl, mrpPrice, rating } = currentProduct;
 
@@ -26,10 +31,10 @@ export default function ProductPreview({ currentProduct }) {
             </div>
           )}
           <p className="mt-2 text-base font-bold text-black">
-            Now {currentPrice}
+            Now ${convertPriceToNumber(currentPrice)}
           </p>
           {mrpPrice && (
-            <p className="text-sm text-gray-500 line-through">{mrpPrice}</p>
+            <p className="text-sm text-gray-500 line-through">${convertPriceToNumber(mrpPrice)}</p>
           )}
           <p className="mt-5 text-xs text-gray-500">Doesn&apos;t look right?</p>
           <p className="underline text-xs text-gray-500">TRY AGAIN.</p>

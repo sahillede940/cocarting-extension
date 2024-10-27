@@ -61,6 +61,8 @@ export default function Popup({ setMessage, userId }) {
         const response = await axios.get(
           `${API_URL}/wishlists/${wishlistId}/products`
         );
+
+        console.log("response", response.data);
         const formattedItems = response.data.map((item) => ({
           title: item.name,
           currentPrice: item.price,

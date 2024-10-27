@@ -5,10 +5,11 @@ import { jwtDecode } from "jwt-decode";
 import TipPopup from "./TipPopup";
 import ToolbarTipPopup from "./ToolbarTipPopup";
 import ErrorToast from "./Components/ErrorToast";
-
+import { useRef } from "react";
 export default function App() {
   const [message, setMessage] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
+  const popupRef = useRef(null);
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
@@ -79,8 +80,9 @@ export default function App() {
   // useEffect(() => {
   //   const handleClickOutside = (event) => {
   //     if (popupRef.current && !popupRef.current.contains(event.target)) {
-  //       setCurrentProduct(null);
-  //       chrome.storage?.local.remove("currentProduct"); 
+  //       chrome.storage?.local.remove("currentProduct", () => {
+  //         setCurrentProduct(null);
+  //       });
   //     }
   //   };
 
@@ -100,7 +102,7 @@ export default function App() {
         className="border-none rounded-2xl text-jakarta p-1"
         style={{ height: "100%", overflow: "hidden" }}
       >
-        {/* {showErrorToast && Boolean(currentProduct) ? (
+        {showErrorToast && Boolean(currentProduct) ? (
           <ErrorToast
             message="Product not Saved to WishList!"
             onClose={() => setShowErrorToast(false)}
@@ -137,9 +139,9 @@ export default function App() {
               </button>
             )}
           </div>
-        )} */}
+        )}
 
-        <div
+        {/* <div
             className="border-none rounded-2xl text-jakarta p-2"
             style={{ height: "100%", overflow: "hidden" }}
           >
@@ -169,7 +171,7 @@ export default function App() {
                 Login
               </button>
             )}
-          </div>
+          </div> */}
       </div>
     </>
   );
