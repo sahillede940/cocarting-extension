@@ -1,4 +1,5 @@
-export default function DisablePopup() {
+export default function DisablePopup({ user }) {
+  console.log("disable popup user", user);
   return (
     <div
       className="bg-white max-w-full sm:max-w-md mx-auto overflow-hidden h-full text-jakarta"
@@ -17,10 +18,10 @@ export default function DisablePopup() {
             View my WishLists
           </button>
           <button className="text-base text-[#44403C] font-normal">
-            Report an issue with walmart.com
+            Report an issue with amazon.com
           </button>
           <button className="text-base text-[#44403C] font-normal">
-            Enable CoCarting on walmart.com
+            Disable CoCarting on amazon.com
           </button>
           <button className="text-base text-[#44403C] font-normal">
             Sign Out

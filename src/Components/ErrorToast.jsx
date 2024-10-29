@@ -1,4 +1,3 @@
-
 const ErrorToast = ({ message, onClose }) => {
   const handleSave = async () => {
     // Send a message to the background script to save the product
@@ -29,6 +28,12 @@ const ErrorToast = ({ message, onClose }) => {
         Let&apos;s Save it
       </button>
     </div>
+  );
+};
+
+export const ErrorToastComponent = ({ onClose }) => {
+  return (
+    <ErrorToast message="Product not Saved to WishList!" onClose={onClose} />
   );
 };
 
