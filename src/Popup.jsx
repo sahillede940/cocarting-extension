@@ -85,6 +85,7 @@ export default function Popup({ setMessage, userId }) {
       await axios.post(`${API_URL}/cocarts`, {
         name: wishlistName,
         user_id: userId,
+        slug: `${wishlistName}-${userId}`,
       });
       await fetchWishlists(userId);
       setNewWishlistName("");
