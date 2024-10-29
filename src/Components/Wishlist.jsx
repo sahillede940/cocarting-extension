@@ -1,7 +1,9 @@
-import { useState } from "react";
+/* eslint-disable react/prop-types */
 import { toast } from "react-toastify";
 import axios from "axios";
 import { API_URL } from "../constant";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default function Wishlist({
   wishlists,
@@ -35,9 +37,9 @@ export default function Wishlist({
       return;
     }
     if (selectedWishlistId === wishlistId) {
-      handleWishlistChange(null); // Unselect if already selected
+      handleWishlistChange(null);
     } else {
-      handleWishlistChange(wishlistId); // Select if not selected
+      handleWishlistChange(wishlistId);
     }
   };
 
@@ -58,12 +60,12 @@ export default function Wishlist({
             isSelected
               ? "bg-indigo-600 hover:bg-indigo-700 text-white"
               : "bg-white hover:bg-gray-50"
-          } transition-colors duration-200 focus:outline-none`; // Fixed template literal
+          } transition-colors duration-200 focus:outline-none`;
 
           return (
             <li
               key={wishlist.id}
-              className="flex justify-between items-center text-base" // Fixed class order
+              className="flex justify-between items-center text-base"
             >
               <button
                 className={buttonClasses}
@@ -71,21 +73,20 @@ export default function Wishlist({
               >
                 {wishlist.name}
               </button>
-              {isNewProduct ? (
+              <div className="flex space-x-2">
                 <button
                   className="ml-3 py-1 px-6 bg-indigo-600 text-white text-base rounded-lg hover:bg-indigo-700 transition-colors duration-200 focus:outline-none"
                   onClick={() => handleAddWishlist(wishlist.id, wishlist.name)}
                 >
                   Add
                 </button>
-              ) : (
                 <button
-                  className="ml-3 py-1 px-6 bg-red-500 text-white text-base rounded-lg hover:bg-red-600 transition-colors duration-200 focus:outline-none"
+                  className="ml-3 py-1 px-2 bg-red-500 text-white text-base rounded-lg hover:bg-red-600 transition-colors duration-200 focus:outline-none"
                   onClick={() => handleDeleteWishlist(wishlist.id)}
                 >
-                  Delete
+                  <FontAwesomeIcon icon={faTrash} />
                 </button>
-              )}
+              </div>
             </li>
           );
         })}

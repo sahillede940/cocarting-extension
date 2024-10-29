@@ -1,12 +1,27 @@
+/* eslint-disable no-undef */
 import Header from "./Components/Header";
 import Popup from "./Popup";
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import TipPopup from "./TipPopup";
 import ToolbarTipPopup from "./ToolbarTipPopup";
-import ErrorToast from "./Components/ErrorToast";
 import { useRef } from "react";
+
+const isProductPage = (url) => {
+  const productPatterns = [
+    /\/p\//,
+    /\/product\//,
+    /\/dp\//,
+    /item\.html/,
+    /[-a-zA-Z0-9]+\/dp\/[-a-zA-Z0-9]+/,
+  ];
+
+  return productPatterns.some((pattern) => pattern.test(url));
+};
+
 export default function App() {
+  console.log("User Info", JSON.parse(localStorage.getItem("user")));
+
   const [message, setMessage] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
   const popupRef = useRef(null);
@@ -22,24 +37,28 @@ export default function App() {
     completed: false,
   });
   const [showErrorToast, setShowErrorToast] = useState(true);
+  const [isOnProductPage, setIsOnProductPage] = useState(false);
 
   useEffect(() => {
+    // Check current page type
+    chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.url) {
+        const currentUrl = tabs[0].url;
+        const productPage = isProductPage(currentUrl);
+        setIsOnProductPage(productPage);
+
+        // If not on product page and tips not completed, show toolbar tip
+        if (!productPage && userId && !showTips.completed) {
+          setShowTips({ firstTip: false, secondTip: true, completed: false });
+        }
+      }
+    });
+
     chrome.storage?.local.get(["wishlists", "currentProduct"], (result) => {
       if (result.currentProduct) {
         setCurrentProduct(result.currentProduct);
       }
     });
-  }, []);
-
-  useEffect(() => {
-    // Check if user has seen tips before
-    const tipsStatus = localStorage.getItem(`tips_${userId}`);
-    if (!tipsStatus && userId) {
-      // New user, show first tip
-      setShowTips({ firstTip: true, secondTip: false, completed: false });
-    } else if (tipsStatus === "completed") {
-      setShowTips({ firstTip: false, secondTip: false, completed: true });
-    }
   }, [userId]);
 
   const onSuccess = (credentialResponse) => {
@@ -52,6 +71,11 @@ export default function App() {
     console.log("Login Success");
   };
 
+  const handleToolbarTipClose = () => {
+    window.close();
+    chrome.runtime.sendMessage({ action: "closePopup" });
+  };
+
   const handleFirstTipComplete = () => {
     setShowTips({ firstTip: false, secondTip: true, completed: false });
   };
@@ -59,6 +83,7 @@ export default function App() {
   const handleSecondTipComplete = () => {
     setShowTips({ firstTip: false, secondTip: false, completed: true });
     localStorage.setItem(`tips_${userId}`, "completed");
+    handleToolbarTipClose();
   };
 
   const LogOutButton = () => {
@@ -102,76 +127,44 @@ export default function App() {
         className="border-none rounded-2xl text-jakarta p-1"
         style={{ height: "100%", overflow: "hidden" }}
       >
-        {showErrorToast && Boolean(currentProduct) ? (
-          <ErrorToast
-            message="Product not Saved to WishList!"
-            onClose={() => setShowErrorToast(false)}
-          />
-        ) : (
-          <div
-            className="border-none rounded-2xl text-jakarta p-2"
-            style={{ height: "100%", overflow: "hidden" }}
-          >
-            <Header setMessage={setMessage} />
+        <div
+          className="border-none rounded-2xl text-jakarta p-2"
+          style={{ height: "100%", overflow: "hidden" }}
+        >
+          <Header setMessage={setMessage} />
 
-            {userId ? (
-              <main className="container">
-                <div className="flex justify-center items-center">
-                  <div className="w-full max-w-4xl lg:max-w-6xl rounded-lg">
-                    {showTips.firstTip && (
-                      <TipPopup onComplete={handleFirstTipComplete} />
-                    )}
-                    {showTips.secondTip && (
-                      <ToolbarTipPopup onComplete={handleSecondTipComplete} />
-                    )}
-                    {showTips.completed && (
-                      <Popup setMessage={setMessage} userId={userId} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct}  />
-                    )}
-                  </div>
+          {userId ? (
+            <main className="container">
+              <div className="flex justify-center items-center">
+                <div className="w-full max-w-4xl lg:max-w-6xl rounded-lg">
+                  {showTips.firstTip && (
+                    <TipPopup onComplete={handleFirstTipComplete} />
+                  )}
+                  {showTips.secondTip && !isOnProductPage && (
+                    <ToolbarTipPopup onComplete={handleSecondTipComplete} />
+                  )}
+                  {(showTips.completed || isOnProductPage) && (
+                    <Popup
+                      setMessage={setMessage}
+                      user={user}
+                      userId={userId}
+                      currentProduct={currentProduct}
+                      setCurrentProduct={setCurrentProduct}
+                      isOnProductPage={isOnProductPage}
+                    />
+                  )}
                 </div>
-              </main>
-            ) : (
-              <button
-                className="bg-blue-500 text-white font-bold py-2 px-4 rounded-md"
-                onClick={handleDummyError}
-              >
-                Login
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* <div
-            className="border-none rounded-2xl text-jakarta p-2"
-            style={{ height: "100%", overflow: "hidden" }}
-          >
-            <Header setMessage={setMessage} />
-
-            {userId ? (
-              <main className="container">
-                <div className="flex justify-center items-center">
-                  <div className="w-full max-w-4xl lg:max-w-6xl rounded-lg">
-                    {showTips.firstTip && (
-                      <TipPopup onComplete={handleFirstTipComplete} />
-                    )}
-                    {showTips.secondTip && (
-                      <ToolbarTipPopup onComplete={handleSecondTipComplete} />
-                    )}
-                    {showTips.completed && (
-                      <Popup setMessage={setMessage} userId={userId} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct}  />
-                    )}
-                  </div>
-                </div>
-              </main>
-            ) : (
-              <button
-                className="bg-blue-500 text-white font-bold py-2 px-4 rounded-md"
-                onClick={handleDummyError}
-              >
-                Login
-              </button>
-            )}
-          </div> */}
+              </div>
+            </main>
+          ) : (
+            <button
+              className="bg-blue-500 text-white font-bold py-2 px-4 rounded-md"
+              onClick={handleDummyError}
+            >
+              Login
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

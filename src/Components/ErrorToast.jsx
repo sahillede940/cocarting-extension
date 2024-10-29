@@ -1,4 +1,3 @@
-
 const ErrorToast = ({ message, onClose }) => {
   return (
     <div className="h-full bottom-4 right-4 bg-[#4338CA] text-white p-4 rounded-lg shadow-lg flex items-center">
@@ -10,6 +9,12 @@ const ErrorToast = ({ message, onClose }) => {
         Let&apos;s Save it
       </button>
     </div>
+  );
+};
+
+export const ErrorToastComponent = ({ onClose }) => {
+  return (
+    <ErrorToast message="Product not Saved to WishList!" onClose={onClose} />
   );
 };
 

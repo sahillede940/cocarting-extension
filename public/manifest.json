@@ -34,6 +34,10 @@
       "128": "icons/icon128.png"
     }
   },
+  "web_accessible_resources": [{
+    "resources": ["style.css"],
+    "matches": ["<all_urls>"]
+  }],
   "content_scripts": [
     {
       "matches": [

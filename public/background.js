@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "SHOW_POPUP") {
     chrome.storage.local.set({ currentProduct: message.product }, () => {
@@ -10,11 +11,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           console.error("Error opening popup:", error);
         });
     });
-  }
-});
-
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.type === "ADD_PRODUCT_TO_WISHLIST") {
+  } else if (message.type === "ADD_PRODUCT_TO_WISHLIST") {
     chrome.storage.local.get(["wishlists", "currentProduct"], (result) => {
       let wishlists = result.wishlists || [];
       let currentProduct = result.currentProduct;
@@ -24,14 +21,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         return;
       }
 
-      let selectedWishlist = wishlists.find((w) => w.name === msg.selectedWishlist);
+      let selectedWishlist = wishlists.find(
+        (w) => w.name === message.selectedWishlist
+      );
       if (selectedWishlist) {
         selectedWishlist.items.push(currentProduct);
 
         chrome.storage.local.set({ wishlists }, () => {
           console.log("Product added to wishlist:", currentProduct);
 
-          const notificationIcon = currentProduct.imageUrl || chrome.runtime.getURL("icons/icon128.png"); // Fallback icon
+          const notificationIcon =
+            currentProduct.imageUrl ||
+            chrome.runtime.getURL("icons/icon128.png");
 
           chrome.notifications.create(
             {
@@ -45,7 +46,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
               if (chrome.runtime.lastError) {
                 console.error("Notification error:", chrome.runtime.lastError);
               } else {
-                console.log("Notification created successfully with ID:", notificationId);
+                console.log(
+                  "Notification created successfully with ID:",
+                  notificationId
+                );
               }
             }
           );
@@ -55,16 +59,37 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             selectedWishlist: selectedWishlist.name,
             product: currentProduct,
           });
+
+          closePopup();
         });
       } else {
         console.error("Selected wishlist not found.");
       }
     });
+  } else if (
+    message.action === "closeWindow" ||
+    message.action === "closePopup"
+  ) {
+    closePopup();
   }
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "closeWindow") {
+function closePopup() {
+  chrome.windows.getCurrent((window) => {
+    if (window.type === "popup") {
+      chrome.windows.remove(window.id);
+    }
+  });
+
+  chrome.tabs.query({ type: "popup" }, (tabs) => {
+    tabs.forEach((tab) => {
+      chrome.tabs.remove(tab.id);
+    });
+  });
+
+  try {
     chrome.action.closePopup();
+  } catch (error) {
+    console.error("Error closing popup:", error);
   }
-});
+}
