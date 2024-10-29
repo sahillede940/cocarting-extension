@@ -1,3 +1,6 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-undef */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import ProductPreview from "./Components/ProductPreview";
 import Wishlist from "./Components/Wishlist";
@@ -6,22 +9,29 @@ import axios from "axios";
 import { API_URL } from "./constant";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import DisablePopup from "./DisablePopup";
+import ErrorToastComponent from './Components/ErrorToast'; // Adjust the path as necessary
 
 function convertPriceToNumber(priceStr) {
   const match = priceStr.replace(",", "").match(/\d+(\.\d+)?/);
   return match ? parseFloat(match[0]) : null;
 }
 function convertToSlug(url) {
-  const cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/');
-  const slug = cleanUrl.filter(part => part).pop() || '';
+  const cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, "").split("/");
+  const slug = cleanUrl.filter((part) => part).pop() || "";
   return slug.slice(0, 200);
 }
 
-export default function Popup({ setMessage, userId }) {
+export default function Popup({
+  setMessage,
+  userId,
+  user,
+  currentProduct,
+  setCurrentProduct,
+  isOnProductPage,
+}) {
   const [wishlists, setWishlists] = useState([]);
   const [selectedWishlistId, setSelectedWishlistId] = useState(null);
   const [wishlistItems, setWishlistItems] = useState([]);
-  const [currentProduct, setCurrentProduct] = useState(null);
   const [userNote, setUserNote] = useState("");
   const [showMoreWishlists, setShowMoreWishlists] = useState(false);
   const [showMoreItems, setShowMoreItems] = useState(false);
@@ -31,6 +41,14 @@ export default function Popup({ setMessage, userId }) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [refreshUrl, setRefreshUrl] = useState("");
   const [activeTab, setActiveTab] = useState("save");
+  const [showErrorToast, setShowErrorToast] = useState(false);
+
+  useEffect(() => {
+    // Close the popup when the error toast is shown
+    if (showErrorToast) {
+      window.close();
+    }
+  }, [showErrorToast]);
 
   // Fetch wishlists for the user
   const fetchWishlists = async (user_id = userId) => {
@@ -42,17 +60,20 @@ export default function Popup({ setMessage, userId }) {
     }
   };
 
-  
-
   useEffect(() => {
+    // If not on product page, show empty state or different content
+    if (!isOnProductPage) {
+      setCurrentProduct(null);
+    }
+
     fetchWishlists(userId);
 
     chrome.storage?.local.get(["wishlists", "currentProduct"], (result) => {
-      if (result.currentProduct) {
+      if (result.currentProduct && isOnProductPage) {
         setCurrentProduct(result.currentProduct);
       }
     });
-  }, [userId]);
+  }, [userId, isOnProductPage]);
 
   const handleWishlistChange = async (wishlistId) => {
     setSelectedWishlistId(wishlistId);
@@ -121,9 +142,8 @@ export default function Popup({ setMessage, userId }) {
     }
   };
 
-  const addProductToWishlist = () => {
-
-    if (currentProduct) {
+  function addProductToWishlist() {
+    if (currentProduct && selectedWishlistId) {
       console.log("Adding product to wishlist...");
       console.log("currentProduct",  {
         product: {
@@ -157,56 +177,67 @@ export default function Popup({ setMessage, userId }) {
         .then(() => {
           setCurrentProduct(null);
           setSelectedWishlistId(null);
-          chrome.storage?.local.set({ currentProduct: null }, () => {
-            chrome.runtime.sendMessage({ action: "closeWindow" });
-          });
+
+          // Clear storage and send close message
+          // chrome.storage?.local.set({ currentProduct: null }, () => {
+          //   // Send message to close popup
+          //   chrome.runtime.sendMessage({ action: "closePopup" });
+
+          //   // Also try direct window.close() as backup
+          //   window.close();
+          // });
         })
-        .catch((err) =>
-          console.error("Error adding product to wishlist:", err)
-        );
+        .catch((err) => {
+          console.error("Error adding product to wishlist:", err);
+          setShowErrorToast(true); // Show the error toast
+        });
+
+      setShowErrorToast(true); // Show the error toast
+    } else {
+      console.error("No product or wishlist selected.");
     }
-  };
+  }
 
-  const discardProduct = () => {
-    chrome.storage?.local.remove("currentProduct", () => {
-      setCurrentProduct(null);
-    });
-  };
+  // const discardProduct = () => {
+  //   chrome.storage?.local.remove("currentProduct", () => {
+  //     setCurrentProduct(null);
+  //   });
+  // };
 
-  const fetchProductInfo = async () => {
-    setLoading(true);
-    try {
-      chrome.tabs.query(
-        { active: true, currentWindow: true },
-        async function (tabs) {
-          const currentUrl = tabs[0].url;
-          const response = await fetch("http://localhost:5050/product-info", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ inputUrl: currentUrl }),
-          });
-          const data = await response.json();
-          setLoading(false);
-        }
-      );
-    } catch (error) {
-      console.error("Error fetching product info:", error);
-      setLoading(false);
-    }
-  };
+  // const fetchProductInfo = async () => {
+  //   setLoading(true);
+  //   try {
+  //     chrome.tabs.query(
+  //       { active: true, currentWindow: true },
+  //       async function (tabs) {
+  //         const currentUrl = tabs[0].url;
+  //         const response = await fetch("http://localhost:5050/product-info", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify({ inputUrl: currentUrl }),
+  //         });
+  //         const data = await response.json();
+  //         setLoading(false);
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.error("Error fetching product info:", error);
+  //     setLoading(false);
+  //   }
+  // };
 
-  const handleRefresh = async () => {
-    chrome.tabs.query(
-      { active: true, currentWindow: true },
-      async function (tabs) {
-        const currentUrl = tabs[0].url;
-        setRefreshUrl(currentUrl);
-        setIsPopupVisible(true);
-      }
-    );
-  };
+  // const handleRefresh = async () => {
+  //   chrome.tabs.query(
+  //     { active: true, currentWindow: true },
+  //     async function (tabs) {
+  //       const currentUrl = tabs[0].url;
+  //       setRefreshUrl(currentUrl);
+  //       setIsPopupVisible(true);
+  //     }
+  //   );
+  // };
 
   const confirmRefresh = async () => {
     setIsPopupVisible(false);
@@ -230,7 +261,7 @@ export default function Popup({ setMessage, userId }) {
 
   const handleTabClick = (tab) => {
     if (tab === "save") {
-      discardProduct();
+      // discardProduct();
       setActiveTab("save");
     } else {
       setActiveTab("more");
@@ -239,7 +270,23 @@ export default function Popup({ setMessage, userId }) {
 
   const renderContent = () => {
     if (activeTab === "more") {
-      return <DisablePopup />;
+      return <DisablePopup user={user} />;
+    }
+
+    if (!isOnProductPage) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-4">
+          <p className="text-gray-600 text-center mb-4">
+            Please navigate to a product page to save items to your wishlist.
+          </p>
+          <button
+            onClick={() => window.close()}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+          >
+            Close
+          </button>
+        </div>
+      );
     }
 
     return (
@@ -326,9 +373,9 @@ export default function Popup({ setMessage, userId }) {
                 </button>
               </div>
 
-              <p className="mt-4 mb-2 text-xs text-gray-500 text-center">
+              {/* <p className="mt-4 mb-2 text-xs text-gray-500 text-center">
                 Having issues? Try saving from the toolbar icon.
-              </p>
+              </p> */}
             </div>
           )}
         </div>
@@ -376,7 +423,7 @@ export default function Popup({ setMessage, userId }) {
           </div>
         )}
 
-        {!loading && !currentProduct && (
+        {/* {!loading && !currentProduct && (
           <div className="text-center py-2">
             <button
               onClick={handleRefresh}
@@ -385,7 +432,7 @@ export default function Popup({ setMessage, userId }) {
               Refresh Product Info
             </button>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Main Content */}
@@ -424,6 +471,10 @@ export default function Popup({ setMessage, userId }) {
             </div>
           </div>
         </div>
+      )}
+
+      {showErrorToast && (
+        <ErrorToastComponent onClose={() => setShowErrorToast(false)} />
       )}
     </div>
   );
