@@ -20,7 +20,7 @@ export default function Wishlist({
   const handleDeleteWishlist = async (wishlistId) => {
     toast.info("Deleting wishlist...");
     try {
-      await axios.delete(`${API_URL}/wishlists/${wishlistId}`); // Fixed template literal
+      await axios.delete(`${API_URL}/cocarts/${wishlistId}`); // Fixed template literal
       await fetchWishlists(userId);
       toast.success("Wishlist deleted successfully");
     } catch (error) {
