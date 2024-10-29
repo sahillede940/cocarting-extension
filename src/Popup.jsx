@@ -35,7 +35,7 @@ export default function Popup({ setMessage, userId }) {
   // Fetch wishlists for the user
   const fetchWishlists = async (user_id = userId) => {
     try {
-      const response = await axios.get(`${API_URL}/wishlists/${user_id}`);
+      const response = await axios.get(`${API_URL}/cocarts/${user_id}`);
       setWishlists(response.data);
     } catch (error) {
       console.error("Error fetching wishlists:", error);
@@ -59,7 +59,7 @@ export default function Popup({ setMessage, userId }) {
     if (!currentProduct) {
       try {
         const response = await axios.get(
-          `${API_URL}/wishlists/${wishlistId}/products`
+          `${API_URL}/cocarts/${wishlistId}/products`
         );
 
         console.log("response", response.data);
@@ -82,9 +82,10 @@ export default function Popup({ setMessage, userId }) {
 
   const createWishlist = async (wishlistName) => {
     try {
-      await axios.post(`${API_URL}/wishlists`, {
+      await axios.post(`${API_URL}/cocarts`, {
         name: wishlistName,
         user_id: userId,
+        slug: `${wishlistName}-${userId}`,
       });
       await fetchWishlists(userId);
       setNewWishlistName("");
@@ -124,18 +125,22 @@ export default function Popup({ setMessage, userId }) {
 
     if (currentProduct) {
       console.log("Adding product to wishlist...");
-      console.log("currentProduct", {
-        name: currentProduct.title,
-        price: convertPriceToNumber(currentProduct.currentPrice),
-        original_price: convertPriceToNumber(currentProduct.mrpPrice),
-        customer_rating: currentProduct.rating,
-        image: currentProduct.imageUrl,
-        product_tracking_url: currentProduct.url,
-        slug: convertToSlug(currentProduct.url),
-        added_by: Number(userId),
+      console.log("currentProduct",  {
+        product: {
+          name: currentProduct.title,
+          price: convertPriceToNumber(currentProduct.currentPrice),
+          original_price: convertPriceToNumber(currentProduct.mrpPrice),
+          customer_rating: currentProduct.rating,
+          image: currentProduct.imageUrl,
+          product_tracking_url: currentProduct.url,
+          slug: convertToSlug(currentProduct.url),
+          added_by: Number(userId),
+        },
+        note: userNote,
+        cocart_id: selectedWishlistId,
       });
       axios
-        .post(`${API_URL}/wishlist-products`, {
+        .post(`${API_URL}/cocart-products`, {
           product: {
             name: currentProduct.title,
             price: convertPriceToNumber(currentProduct.currentPrice),
@@ -147,7 +152,7 @@ export default function Popup({ setMessage, userId }) {
             added_by: Number(userId),
           },
           note: userNote,
-          wishlist_id: selectedWishlistId,
+          cocart_id: selectedWishlistId,
         })
         .then(() => {
           setCurrentProduct(null);

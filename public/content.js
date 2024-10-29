@@ -191,3 +191,10 @@ if (true) {
 
     document.body.appendChild(addButton);
 }
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "SCRAPE_PRODUCT_DATA") {
+      scrapeProductData();
+      sendResponse({ status: "Product data scraping started." });
+    }
+  });

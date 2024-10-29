@@ -6,6 +6,7 @@ import TipPopup from "./TipPopup";
 import ToolbarTipPopup from "./ToolbarTipPopup";
 import ErrorToast from "./Components/ErrorToast";
 import { useRef } from "react";
+
 export default function App() {
   const [message, setMessage] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
