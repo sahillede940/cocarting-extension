@@ -93,3 +93,11 @@ function closePopup() {
     console.error("Error closing popup:", error);
   }
 }
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "USER_IDS") {
+    // Store the received data in localStorage
+    localStorage.setItem("email", message.data.email);
+    localStorage.setItem("userId", message.data.userId);
+  }
+});

@@ -238,3 +238,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ status: "Product data scraping started." });
     }
   });
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "GET_USERID_FROM_LOCAL_STORAGE") {
+      const email = chrome.localStorage.getItem("email");
+      const userId = chrome.localStorage.getItem("userId");
+      // Send data to background.js
+      chrome.runtime.sendMessage({
+        type: "USER_IDS",
+        data: {
+          userId: userId,
+          email: email,
+        }
+      });
+    }
+  });

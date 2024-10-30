@@ -59,6 +59,8 @@ export default function App() {
         setCurrentProduct(result.currentProduct);
       }
     });
+    chrome.runtime.sendMessage({ type: "GET_USERID_FROM_LOCAL_STORAGE" });
+
   }, [userId]);
 
   const onSuccess = (credentialResponse) => {
