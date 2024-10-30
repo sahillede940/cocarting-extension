@@ -239,17 +239,52 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   });
 
+  // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  //   if (message.type === "GET_USERID_FROM_LOCAL_STORAGE") {
+  //     const email = chrome.localStorage.getItem("email");
+  //     const userId = chrome.localStorage.getItem("userId");
+  //     console.log("content", email, userId);
+  //     // Send data to background.js
+  //     chrome.runtime.sendMessage({
+  //       type: "USER_IDS",
+  //       data: {
+  //         userId: userId,
+  //         email: email,
+  //       }
+  //     });
+
+  //     sendResponse({
+  //       success: true,
+  //       data: {
+  //         userId: userId,
+  //         email: email
+  //       }
+  //     });
+  //   }
+  // });
+
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "GET_USERID_FROM_LOCAL_STORAGE") {
-      const email = chrome.localStorage.getItem("email");
-      const userId = chrome.localStorage.getItem("userId");
-      // Send data to background.js
-      chrome.runtime.sendMessage({
-        type: "USER_IDS",
-        data: {
-          userId: userId,
-          email: email,
-        }
+    if (message.action === "GET_USERID_FROM_LOCAL_STORAGE") {
+      // Use chrome.storage.local instead of chrome.localStorage
+      chrome.storage.local.get(["email", "userId"], (result) => {
+        console.log("content", result.email, result.userId);
+        // Send data to background.js
+        chrome.runtime.sendMessage({
+          action: "USER_IDS",
+          data: {
+            userId: result.userId,
+            email: result.email,
+          }
+        });
+  
+        sendResponse({
+          success: true,
+          data: {
+            userId: result.userId,
+            email: result.email
+          }
+        });
       });
+      
     }
   });

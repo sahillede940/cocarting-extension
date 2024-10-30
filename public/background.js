@@ -75,27 +75,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function closePopup() {
+  //To close extension
   chrome.windows.getCurrent((window) => {
     if (window.type === "popup") {
       chrome.windows.remove(window.id);
     }
   });
-
-  chrome.tabs.query({ type: "popup" }, (tabs) => {
+  //type changed to action 
+  //To close tab
+  chrome.tabs.query( { windowType: "popup" },(tabs) => {
     tabs.forEach((tab) => {
       chrome.tabs.remove(tab.id);
     });
   });
+  // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  //   if (tabs.length > 0) {
+  //     // Close the active tab, which is the popup
+  //     chrome.tabs.remove(tabs[0].id);
+  //   }
+  // });
+  
 
-  try {
-    chrome.action.closePopup();
-  } catch (error) {
-    console.error("Error closing popup:", error);
-  }
+  // try {
+  //   chrome.action.closePopup();
+  // } catch (error) {
+  //   console.error("Error closing popup:", error);
+  // }
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "USER_IDS") {
+  if (message.action === "USER_IDS") {
+    console.log("background",  message.data.userId);
     // Store the received data in localStorage
     localStorage.setItem("email", message.data.email);
     localStorage.setItem("userId", message.data.userId);

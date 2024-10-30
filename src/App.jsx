@@ -59,9 +59,25 @@ export default function App() {
         setCurrentProduct(result.currentProduct);
       }
     });
-    chrome.runtime.sendMessage({ type: "GET_USERID_FROM_LOCAL_STORAGE" });
+    
 
   }, [userId]);
+  useEffect(()=>{
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "GET_USERID_FROM_LOCAL_STORAGE" }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error("Error sending message:", chrome.runtime.lastError);
+          } else {
+            console.log("Response from content script:", response);
+          }
+        });
+      }
+    });
+    const userId = localStorage.getItem('userId');
+    const email = localStorage.getItem('email');
+    console.log(userId, email);
+  },[]);
 
   const onSuccess = (credentialResponse) => {
     const user = jwtDecode(credentialResponse.credential);
