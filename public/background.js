@@ -75,21 +75,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function closePopup() {
+  //To close extension
   chrome.windows.getCurrent((window) => {
     if (window.type === "popup") {
       chrome.windows.remove(window.id);
     }
   });
-
-  chrome.tabs.query({ type: "popup" }, (tabs) => {
+  //type changed to action 
+  //To close tab
+  chrome.tabs.query( { windowType: "popup" },(tabs) => {
     tabs.forEach((tab) => {
       chrome.tabs.remove(tab.id);
     });
   });
+  // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  //   if (tabs.length > 0) {
+  //     // Close the active tab, which is the popup
+  //     chrome.tabs.remove(tabs[0].id);
+  //   }
+  // });
+  
 
-  try {
-    chrome.action.closePopup();
-  } catch (error) {
-    console.error("Error closing popup:", error);
-  }
+  // try {
+  //   chrome.action.closePopup();
+  // } catch (error) {
+  //   console.error("Error closing popup:", error);
+  // }
 }
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "USER_IDS") {
+    // Store the received data in localStorage
+    chrome.storage.local.set({ "email": message.data.email, "userId": message.data.userId }, () => {
+      console.log("Data stored in local storage:", {userId: message.data.userId, email: message.data.email})
+      sendResponse({status: "success", data: {userId: message.data.userId, email: message.data.email}})
+    });
+
+    return true;
+  }
+});

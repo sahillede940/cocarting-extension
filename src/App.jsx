@@ -31,6 +31,7 @@ export default function App() {
   const [userId, setUserId] = useState(
     JSON.parse(localStorage.getItem("userId")) || "1"
   );
+  const [email,  setEmail] = useState<String>('');
   const [showTips, setShowTips] = useState({
     firstTip: false,
     secondTip: false,
@@ -59,7 +60,26 @@ export default function App() {
         setCurrentProduct(result.currentProduct);
       }
     });
+    
+
   }, [userId]);
+  useEffect(()=>{
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        try {
+          
+          chrome.tabs.sendMessage(tabs[0].id, { action: "GET_USERID_FROM_LOCAL_STORAGE" }, (response) => {
+            // chrome.storage.local.get({userId})
+            const {userId, email } = response;
+            setUserId(userId);
+            setEmail(email);
+          })
+        } catch (err) {
+          console.log("Error sending message from App.jsx", { err })
+        }
+      }
+    });
+  },[]);
 
   const onSuccess = (credentialResponse) => {
     const user = jwtDecode(credentialResponse.credential);

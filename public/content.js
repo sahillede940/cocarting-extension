@@ -238,3 +238,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ status: "Product data scraping started." });
     }
   });
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "GET_USERID_FROM_LOCAL_STORAGE") {
+      const userId = localStorage.getItem("userId") ?? "guest user";
+      const email = localStorage.getItem("email") ?? "gestuser@cocarting";
+      sendResponse({userId: userId, email: email})
+      try {
+        chrome.runtime.sendMessage({
+          action: "USER_IDS", data: {
+            userId,
+            email
+          }
+        }, (response) => {
+          console.log("Response from bg.js", { response });
+        })
+        
+      } catch (err) {
+        console.log("Error sending message on Content.js to background", {err})
+      }
+      
+    }
+  });
