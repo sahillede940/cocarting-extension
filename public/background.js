@@ -105,9 +105,12 @@ function closePopup() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "USER_IDS") {
-    console.log("background",  message.data.userId);
     // Store the received data in localStorage
-    localStorage.setItem("email", message.data.email);
-    localStorage.setItem("userId", message.data.userId);
+    chrome.storage.local.set({ "email": message.data.email, "userId": message.data.userId }, () => {
+      console.log("Data stored in local storage:", {userId: message.data.userId, email: message.data.email})
+      sendResponse({status: "success", data: {userId: message.data.userId, email: message.data.email}})
+    });
+
+    return true;
   }
 });

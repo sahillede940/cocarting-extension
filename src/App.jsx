@@ -31,6 +31,7 @@ export default function App() {
   const [userId, setUserId] = useState(
     JSON.parse(localStorage.getItem("userId")) || "1"
   );
+  const [email,  setEmail] = useState<String>('');
   const [showTips, setShowTips] = useState({
     firstTip: false,
     secondTip: false,
@@ -65,18 +66,19 @@ export default function App() {
   useEffect(()=>{
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
-        chrome.tabs.sendMessage(tabs[0].id, { type: "GET_USERID_FROM_LOCAL_STORAGE" }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.error("Error sending message:", chrome.runtime.lastError);
-          } else {
-            console.log("Response from content script:", response);
-          }
-        });
+        try {
+          
+          chrome.tabs.sendMessage(tabs[0].id, { action: "GET_USERID_FROM_LOCAL_STORAGE" }, (response) => {
+            // chrome.storage.local.get({userId})
+            const {userId, email } = response;
+            setUserId(userId);
+            setEmail(email);
+          })
+        } catch (err) {
+          console.log("Error sending message from App.jsx", { err })
+        }
       }
     });
-    const userId = localStorage.getItem('userId');
-    const email = localStorage.getItem('email');
-    console.log(userId, email);
   },[]);
 
   const onSuccess = (credentialResponse) => {
