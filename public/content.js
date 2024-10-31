@@ -251,7 +251,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             email
           }
         }, (response) => {
-          console.log("Response from bg.js", { response });
+          //console.log("Response from bg.js", { response });
         })
         
       } catch (err) {
