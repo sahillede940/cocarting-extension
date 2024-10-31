@@ -81,7 +81,6 @@ function closePopup() {
       chrome.windows.remove(window.id);
     }
   });
-  //type changed to action 
   //To close tab
   chrome.tabs.query( { windowType: "popup" },(tabs) => {
     tabs.forEach((tab) => {
@@ -107,7 +106,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "USER_IDS") {
     // Store the received data in localStorage
     chrome.storage.local.set({ "email": message.data.email, "userId": message.data.userId }, () => {
-      console.log("Data stored in local storage:", {userId: message.data.userId, email: message.data.email})
+      //console.log("Data stored in local storage:", {userId: message.data.userId, email: message.data.email})
       sendResponse({status: "success", data: {userId: message.data.userId, email: message.data.email}})
     });
 
