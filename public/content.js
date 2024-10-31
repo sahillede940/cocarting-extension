@@ -241,7 +241,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "GET_USERID_FROM_LOCAL_STORAGE") {
-      const userId = localStorage.getItem("userId") ?? "guest user";
+      const userId = localStorage.getItem("userId") ?? "1";
       const email = localStorage.getItem("email") ?? "gestuser@cocarting";
       sendResponse({userId: userId, email: email})
       try {
