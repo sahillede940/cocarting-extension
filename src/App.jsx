@@ -31,7 +31,7 @@ export default function App() {
   const [userId, setUserId] = useState(
     JSON.parse(localStorage.getItem("userId")) || "1"
   );
-  const [email,  setEmail] = useState<String>('');
+  const [email,  setEmail] = useState('');
   const [showTips, setShowTips] = useState({
     firstTip: false,
     secondTip: false,
